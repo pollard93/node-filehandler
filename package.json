@@ -6,9 +6,8 @@
   "types": "./dist/index.d.ts",
   "private": true,
   "scripts": {
-    "build": "yarn tsc",
-    "format:clean": "rm -rf ./dist",
-    "prepare": "yarn format:clean && yarn build",
+    "build": "rm -rf ./dist && yarn tsc",
+    "prepare": "yarn build",
     "test": "yarn test:lint && yarn test:unit",
     "test:lint": "./node_modules/.bin/eslint \"./**/*.{js,ts}\"",
     "test:unit": "jest",
