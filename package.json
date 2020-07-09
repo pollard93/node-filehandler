@@ -1,17 +1,16 @@
 {
   "name": "mbp-components-node-filehandler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Module to handle file uploads and validation using minio as storage",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "private": true,
   "scripts": {
-    "build": "rm -rf ./dist && yarn tsc",
+    "build": "rm -rf ./dist && ./node_modules/.bin/tsc",
     "prepare": "yarn build",
-    "prepublishOnly": "yarn build",
     "test": "yarn test:lint && yarn test:unit",
-    "test:lint": "./node_modules/.bin/eslint \"./**/*.{js,ts}\"",
+    "test:lint": "./node_modules/.bin/eslint \"./src/**/*.{js,ts}\"",
     "test:unit": "jest",
     "test:unit:coverage": "jest --coverage"
   },

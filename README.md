@@ -10,7 +10,7 @@
 
 4. Bundle with - `yarn build`
 
-5. Install via git `yarn add ssh://bitbucket.org:madebyprism/mpb-components-node-npm-boilerplate.git#{{branch/tag}}`
+5. Install via git `yarn add ssh://git@bitbucket.org:madebyprism/mbp-components-node-filehandler.git#{{branch/tag}}`
 
 ## Usage
 
