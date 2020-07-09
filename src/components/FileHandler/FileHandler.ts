@@ -1,7 +1,8 @@
-import Minio from 'minio';
-import Jimp from 'jimp';
-import imagemin from 'imagemin';
-import imageminJpegtran from 'imagemin-jpegtran';
+/* eslint-disable class-methods-use-this */
+import * as Minio from 'minio';
+import * as Jimp from 'jimp';
+import * as imagemin from 'imagemin';
+import * as imageminJpegtran from 'imagemin-jpegtran';
 import imageminPngquant from 'imagemin-pngquant';
 import { FileHandlerOptions, GrahpQLUpload, ValidateUploadsResponse, GraphQLStream, UploadValidationOptions } from './interfaces';
 
@@ -26,9 +27,10 @@ class FileHandler {
    * @param path - minio key
    * @param expires - expiry if private path (default to 1 day)
    */
-  getUrl(path: string, expires = 86400) {
-    if (FileHandler.isPathPublic(path)) return `${this.config.siteUrl}${path}`;
-    return this.client.presignedUrl('GET', this.config.bucketName, path, expires);
+  getUrl(path: string, thumbnail: string = null, expires = 86400) {
+    const filePath = thumbnail ? this.appendPath(path, thumbnail) : path;
+    if (this.isPathPublic(filePath)) return `${this.config.siteUrl}/${filePath}`;
+    return this.client.presignedUrl('GET', this.config.bucketName, filePath, expires);
   }
 
   /**
@@ -39,20 +41,29 @@ class FileHandler {
    */
   async putImage(path: string, buffer: Buffer, thumbnails = true): Promise<{[NAME: string]: string}> {
     // Store full size image
+    await this.client.putObject(this.config.bucketName, path, buffer);
     const res = {
-      full: await this.client.putObject(this.config.bucketName, path, buffer),
+      full: path,
     };
 
     // Create thumnails
     if (thumbnails) {
       for (const thumbnailName of Object.keys(this.config.thumbnails)) {
-        const thumbnailPath = FileHandler.appendPath(path, thumbnailName.toLocaleLowerCase());
+        const thumbnailPath = this.appendPath(path, thumbnailName.toLocaleLowerCase());
         const thumbnailBuffer = await this.createThumbnailImage(buffer, thumbnailName);
-        res[thumbnailName.toLocaleLowerCase()] = await this.client.putObject(this.config.bucketName, thumbnailPath, thumbnailBuffer);
+        await this.client.putObject(this.config.bucketName, thumbnailPath, thumbnailBuffer);
+        res[thumbnailName.toLocaleLowerCase()] = thumbnailPath;
       }
     }
 
     return res;
+  }
+
+  /**
+   * Utility to put object with bucket name
+   */
+  async putObject(path: string, buffer: Buffer) {
+    return this.client.putObject(this.config.bucketName, path, buffer);
   }
 
   /**
@@ -70,7 +81,7 @@ class FileHandler {
   /**
    * Resolves and validates graphql uploads with given validation
    */
-  static async validateGrahpQLUploads(uploads: GrahpQLUpload[], validation: UploadValidationOptions): Promise<ValidateUploadsResponse> {
+  async validateGraphQLUploads(uploads: GrahpQLUpload[], validation: UploadValidationOptions): Promise<ValidateUploadsResponse> {
     const responses: ValidateUploadsResponse = { resolved: [], rejected: {} };
 
     for (const upload of uploads) {
@@ -78,7 +89,7 @@ class FileHandler {
       try {
         stream = await upload;
         stream.readStream = stream.createReadStream();
-        responses.resolved.push(await FileHandler.validateGraphQLStream(stream, validation));
+        responses.resolved.push(await this.validateGraphQLStream(stream, validation));
       } catch (e) {
         responses.rejected[stream.filename] = e.message;
       }
@@ -90,7 +101,7 @@ class FileHandler {
   /**
    * Validates a grapghl stream with given validation
    */
-  static async validateGraphQLStream(data: GraphQLStream, validation: UploadValidationOptions): Promise<GraphQLStream> {
+  async validateGraphQLStream(data: GraphQLStream, validation: UploadValidationOptions): Promise<GraphQLStream> {
     return new Promise((resolve, reject) => {
       try {
         /**
@@ -112,7 +123,7 @@ class FileHandler {
             /**
              * Image handling
              */
-            if (FileHandler.isJimpImage(data.mimetype)) {
+            if (this.isJimpImage(data.mimetype)) {
               // Compress
               buffer = await imagemin.buffer(buffer, {
                 plugins: [
@@ -174,10 +185,14 @@ class FileHandler {
     });
   }
 
-  static appendPath(path: string, appendix: string) {
+  /**
+   * Appends path with given appendix
+   * appendix is forced lowercase
+   */
+  appendPath(path: string, appendix: string) {
     if (!path) return null;
     const newPath = path.split('.');
-    newPath.splice(newPath.length - 1, 0, appendix);
+    newPath.splice(newPath.length - 1, 0, appendix.toLowerCase());
     return newPath.join('.');
   }
 
@@ -185,14 +200,14 @@ class FileHandler {
    * If path has a public prefix
    * It is public
    */
-  static isPathPublic(path: string) {
+  isPathPublic(path: string) {
     return path.startsWith('public/');
   }
 
   /**
    * Jimp supported mime types
    */
-  static isJimpImage = (mime: string) => [
+  isJimpImage = (mime: string) => [
     'image/jpeg',
     'image/png',
     'image/bmp',
@@ -201,5 +216,8 @@ class FileHandler {
   ].includes(mime);
 }
 
+/**
+ * Create instance and export
+ */
 const instance = new FileHandler();
 export { instance as FileHandler };

@@ -1,5 +1,5 @@
-import Minio from 'minio';
-import Jimp from 'jimp';
+import * as Minio from 'minio';
+import * as Jimp from 'jimp';
 
 export interface ThumbnailOptions {
   [NAME: string]: (image: Jimp) => Jimp;
