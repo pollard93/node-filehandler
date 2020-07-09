@@ -7,7 +7,7 @@
   "types": "./dist/index.d.ts",
   "private": true,
   "scripts": {
-    "build": "rm -rf ./dist && ./node_modules/.bin/tsc && ls -lia",
+    "build": "rm -rf ./dist && ./node_modules/.bin/tsc",
     "prepare": "yarn build",
     "test": "yarn test:lint && yarn test:unit",
     "test:lint": "./node_modules/.bin/eslint \"./src/**/*.{js,ts}\"",
