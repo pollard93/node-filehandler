@@ -9,7 +9,6 @@
   "scripts": {
     "build": "rm -rf ./dist && ./node_modules/.bin/tsc && ls -lia",
     "prepare": "yarn build",
-    "prepublishOnly": "yarn build",
     "test": "yarn test:lint && yarn test:unit",
     "test:lint": "./node_modules/.bin/eslint \"./src/**/*.{js,ts}\"",
     "test:unit": "jest",
