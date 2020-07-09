@@ -1,6 +1,6 @@
 {
   "name": "mbp-components-node-filehandler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Module to handle file uploads and validation using minio as storage",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
