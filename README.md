@@ -1,10 +1,6 @@
-# Made by Prism Components Node npm Boilerplate
+# Made by Prism Components Node File Handler
 
-Boilerplate code for publishing a Node NPM package.
-
-Includes support for typescript and unit tests.
-
-## Usage
+## Scripts
 
 1. Install modules - `yarn`
 
@@ -16,10 +12,75 @@ Includes support for typescript and unit tests.
 
 5. Install via git `yarn add ssh://bitbucket.org:madebyprism/mpb-components-node-npm-boilerplate.git#{{branch/tag}}`
 
-## Using as a boilerplate
+## Usage
 
-1. Update package.json name, description and version
+### Import and initiate the class
 
-2. Add a new git repo and push
+```js
+import { FileHandler } from 'mbp-components-node-filehandler';
+import Jimp from 'jimp';
 
-3. Any non development dependencies must be added to the devDependencies and also the peerDependencies.
+/**
+ * Init FileHandler
+ */
+export default () => {
+  FileHandler.init({
+    siteUrl: `${process.env.API_ENDPOINT}${process.env.API_PORT ? `:${process.env.API_PORT}` : ''}`,
+    minioOptions: {
+      endPoint: process.env.MINIO_ENDPOINT,
+      port: +process.env.MINIO_PORT,
+      useSSL: process.env.MINIO_SSL === 'true',
+      accessKey: process.env.MINIO_ACCESS_KEY,
+      secretKey: process.env.MINIO_SECRET_KEY,
+      region: process.env.MINIO_REGION,
+    },
+    bucketName: process.env.MINIO_BUCKET || `bucket-${process.env.NODE_ENV}`,
+    thumbnails: {
+      SPLASH: (image) => image.resize(10, Jimp.AUTO).blur(1),
+      SMALL: (image) => image.resize(100, Jimp.AUTO),
+      LARGE: (image) => image.resize(500, Jimp.AUTO),
+    },
+  });
+};
+```
+
+### FileHandler can now be used as a proxy for minio
+
+```js
+await FileHandler.client.putObject();
+```
+
+### For uploading images use: (see function for docs)
+
+```js
+await FileHandler.putImage();
+```
+
+### To get a url use: (see function for docs)
+
+```js
+await FileHandler.getUrl();
+```
+
+### To handle graphql uploads:
+
+```js
+// Validate image
+const { resolved, rejected } = await FileHandler.validateGraphQLUploads([upload as any], {
+  mimes: ['image/jpeg'],
+  maxFileSize: 5000000,
+});
+
+if (Object.keys(rejected).length) {
+  throw Error();
+}
+
+const uploadResolved = resolved[0];
+const url = await FileHandler.putImage(`public/image${path.extname(uploadResolved.filename)}`, uploadResolved.buffer);
+```
+
+### To proxy s3 using express include this after initialising express: (see function for docs)
+
+```js
+ExpressPublicProxy(express);
+```

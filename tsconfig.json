@@ -4,8 +4,10 @@
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "./dist/",
-    "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src"
