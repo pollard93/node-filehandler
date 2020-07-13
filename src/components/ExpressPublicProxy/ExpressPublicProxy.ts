@@ -8,7 +8,7 @@ import { FileHandler } from '../FileHandler/FileHandler';
 export default (e: Application) => {
   e.get('/public/*', async (req, res) => {
     try {
-      const stream = await FileHandler.client.getObject(FileHandler.config.bucketName, req.originalUrl);
+      const stream = await FileHandler.client.getObject(FileHandler.config.bucketName, req.path.substr(1));
       return stream.pipe(res);
     } catch {
       return res.status(404);
