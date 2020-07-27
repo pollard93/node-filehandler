@@ -79,6 +79,26 @@ class FileHandler {
   }
 
   /**
+   * Remove object and thumbnails
+   * @param path - where to store in minio
+   * @param thumbnails - If true, will loop and remove all thumbnails options
+   */
+  async removeObject(path: string, thumbnails = true): Promise<boolean> {
+    // Remove full size image
+    await this.client.removeObject(this.config.bucketName, path);
+
+    // Remove thumbnails
+    if (thumbnails) {
+      for (const thumbnailName of Object.keys(this.config.thumbnails)) {
+        const thumbnailPath = this.appendPath(path, thumbnailName.toLocaleLowerCase());
+        await this.client.removeObject(this.config.bucketName, thumbnailPath);
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Resolves and validates graphql uploads with given validation
    */
   async validateGraphQLUploads(uploads: GrahpQLUpload[], validation: UploadValidationOptions): Promise<ValidateUploadsResponse> {
