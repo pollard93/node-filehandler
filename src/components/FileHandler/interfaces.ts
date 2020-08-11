@@ -33,3 +33,10 @@ export interface ValidateUploadsResponse {
   resolved: GraphQLStream[];
   rejected: {[filename: string]: Error[]};
 }
+
+export interface UrlOptions {
+  path: string; // minio key
+  thumbnail?: string; // name of thumbnail
+  presignedExpiry?: number; // Presigned url expiry in seconds (defaults to 1 day)
+  publicCacheBuster?: boolean; // Appends a unique query string producing a unique url of a public asset
+}
