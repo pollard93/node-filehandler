@@ -243,6 +243,18 @@ class FileHandler {
     'image/tiff',
     'image/gif',
   ].includes(mime);
+
+  /**
+   * Utility to check if object exists
+   */
+  async objectExists(path: string) {
+    try {
+      await this.client.statObject(this.config.bucketName, path);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 /**
