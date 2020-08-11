@@ -4,7 +4,7 @@ import * as Jimp from 'jimp';
 import * as imagemin from 'imagemin';
 import * as imageminJpegtran from 'imagemin-jpegtran';
 import imageminPngquant from 'imagemin-pngquant';
-import { FileHandlerOptions, GrahpQLUpload, ValidateUploadsResponse, GraphQLStream, UploadValidationOptions } from './interfaces';
+import { FileHandlerOptions, GrahpQLUpload, ValidateUploadsResponse, GraphQLStream, UploadValidationOptions, UrlOptions } from './interfaces';
 
 class FileHandler {
   config: FileHandlerOptions;
@@ -24,13 +24,22 @@ class FileHandler {
    * Gets url from a path
    * If the path is public, returns a public url
    * If the path is private, returns a presigned url
-   * @param path - minio key
-   * @param expires - expiry if private path (default to 1 day)
+   * @param options - see interface for docs
    */
-  getUrl(path: string, thumbnail: string = null, expires = 86400) {
-    const filePath = thumbnail ? this.appendPath(path, thumbnail) : path;
-    if (this.isPathPublic(filePath)) return `${this.config.siteUrl}/${filePath}`;
-    return this.client.presignedUrl('GET', this.config.bucketName, filePath, expires);
+  getUrl(options: UrlOptions) {
+    const filePath = options.thumbnail ? this.appendPath(options.path, options.thumbnail) : options.path;
+
+    /**
+     * Handle public path
+     */
+    if (this.isPathPublic(filePath)) {
+      return `${this.config.siteUrl}/${filePath}${options.publicCacheBuster ? `?${Date.now()}` : ''}`;
+    }
+
+    /**
+     * Fallback to presigned
+     */
+    return this.client.presignedUrl('GET', this.config.bucketName, filePath, options.presignedExpiry || 86400);
   }
 
   /**
