@@ -70,9 +70,11 @@ class FileHandler {
 
   /**
    * Utility to put object with bucket name
+   * Returns the path given to be consistent `putImage`
    */
-  async putObject(path: string, buffer: Buffer) {
-    return this.client.putObject(this.config.bucketName, path, buffer);
+  async putObject(path: string, buffer: Buffer): Promise<{full: string}> {
+    await this.client.putObject(this.config.bucketName, path, buffer);
+    return { full: path };
   }
 
   /**
