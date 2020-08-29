@@ -17,13 +17,20 @@
 ### Import and initiate the class
 
 ```js
-import { FileHandler } from 'mbp-components-node-filehandler';
+import { FileHandlerInstance, FileHandler } from 'mbp-components-node-filehandler';
 import Jimp from 'jimp';
 
 /**
- * Init FileHandler
+ * Type Filehandler with thumbnails by making a reference
+ * Import this variable to use typed reference to singleton class
  */
-export default () => {
+export const FileHandler = FileHandlerInstance as FileHandler<'splash' | 'small' | 'large'>;
+
+/**
+ * Init Typed FileHandler
+ * This should be run first of all
+ */
+export const InitFileHandler = () => {
   FileHandler.init({
     siteUrl: `${process.env.API_ENDPOINT}${process.env.API_PORT ? `:${process.env.API_PORT}` : ''}`,
     minioOptions: {
@@ -36,9 +43,9 @@ export default () => {
     },
     bucketName: process.env.MINIO_BUCKET || `bucket-${process.env.NODE_ENV}`,
     thumbnails: {
-      SPLASH: (image) => image.resize(10, Jimp.AUTO).blur(1),
-      SMALL: (image) => image.resize(100, Jimp.AUTO),
-      LARGE: (image) => image.resize(500, Jimp.AUTO),
+      splash: (image) => image.resize(10, Jimp.AUTO).blur(1),
+      small: (image) => image.resize(100, Jimp.AUTO),
+      large: (image) => image.resize(500, Jimp.AUTO),
     },
   });
 };
