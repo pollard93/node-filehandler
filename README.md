@@ -17,14 +17,14 @@
 ### Import and initiate the class
 
 ```js
-import { FileHandlerInstance, FileHandler } from 'mbp-components-node-filehandler';
+import { FileHandlerInstance, FileHandler as FileHandlerClass } from 'mbp-components-node-filehandler';
 import Jimp from 'jimp';
 
 /**
  * Type Filehandler with thumbnails by making a reference
  * Import this variable to use typed reference to singleton class
  */
-export const FileHandler = FileHandlerInstance as FileHandler<'splash' | 'small' | 'large'>;
+export const FileHandler = FileHandlerInstance as FileHandlerClass<'splash' | 'small' | 'large'>;
 
 /**
  * Init Typed FileHandler
