@@ -57,9 +57,11 @@ export class FileHandler<ImageThumbnails extends string> {
     if (thumbnails) {
       for (const thumbnailName of Object.keys(this.config.thumbnails)) {
         const thumbnailPath = this.appendPath(path, thumbnailName.toLocaleLowerCase());
-        const thumbnailBuffer = await this.createThumbnailImage(buffer, thumbnailName);
-        await this.client.putObject(this.config.bucketName, thumbnailPath, thumbnailBuffer);
-        res[thumbnailName.toLocaleLowerCase()] = thumbnailPath;
+        const thumbnailBuffer = await this.createThumbnailImage(buffer, thumbnailName as ImageThumbnails);
+        if (thumbnailBuffer) {
+          await this.client.putObject(this.config.bucketName, thumbnailPath, thumbnailBuffer);
+          res[thumbnailName.toLocaleLowerCase()] = thumbnailPath;
+        }
       }
     }
 
@@ -80,7 +82,11 @@ export class FileHandler<ImageThumbnails extends string> {
    * @param buffer - buffer of image to process
    * @param thumbnailName - name of thumbnail - key of ThumbnailOptions
    */
-  async createThumbnailImage(buffer: Buffer, thumbnailName: string) {
+  async createThumbnailImage(buffer: Buffer, thumbnailName: ImageThumbnails) {
+    // Check there is a function to process thumbnail, if not return null
+    const fn = this.config.thumbnails[thumbnailName];
+    if (!fn) return null;
+
     // Get clone of jimp image
     const image = await (await Jimp.read(buffer)).clone();
     // Process thumbnail with given function and return buffer
