@@ -34,7 +34,7 @@ export interface ValidateUploadsResponse {
   rejected: {[filename: string]: Error[]};
 }
 
-export interface UrlOptions<ImageThumbnails extends string> {
+export interface UrlOptions<ImageThumbnails> {
   path: string; // minio key
   thumbnail?: ImageThumbnails; // name of thumbnail
   presignedExpiry?: number; // Presigned url expiry in seconds (defaults to 1 day)
