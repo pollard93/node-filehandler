@@ -1,6 +1,11 @@
 import * as Minio from 'minio';
 import * as Jimp from 'jimp';
 
+/**
+ * Define the functions to process image thumbails
+ * Jimp instance give, allows the processing off and then it must be returned for storing
+ * Return null to not process
+ */
 export type ThumbnailOptions<ImageThumbnails extends string> = {
   [K in ImageThumbnails]: (image: Jimp) => Jimp;
 };
