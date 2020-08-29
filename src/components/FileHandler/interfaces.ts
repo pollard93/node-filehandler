@@ -1,20 +1,20 @@
 import * as Minio from 'minio';
 import * as Jimp from 'jimp';
 
-export interface ThumbnailOptions {
-  [NAME: string]: (image: Jimp) => Jimp;
-}
+export type ThumbnailOptions<ImageThumbnails extends string> = {
+  [K in ImageThumbnails]: (image: Jimp) => Jimp;
+};
 
 export interface UploadValidationOptions {
   mimes: string[];
   maxFileSize: number;
 }
 
-export interface FileHandlerOptions {
+export interface FileHandlerOptions<ImageThumbnails extends string> {
   siteUrl: string;
   minioOptions: Minio.ClientOptions;
   bucketName: string;
-  thumbnails: ThumbnailOptions;
+  thumbnails: ThumbnailOptions<ImageThumbnails>;
 }
 
 export type GraphQLStream = {
@@ -34,9 +34,9 @@ export interface ValidateUploadsResponse {
   rejected: {[filename: string]: Error[]};
 }
 
-export interface UrlOptions {
+export interface UrlOptions<ImageThumbnails extends string> {
   path: string; // minio key
-  thumbnail?: string; // name of thumbnail
+  thumbnail?: ImageThumbnails; // name of thumbnail
   presignedExpiry?: number; // Presigned url expiry in seconds (defaults to 1 day)
   publicCacheBuster?: boolean; // Appends a unique query string producing a unique url of a public asset
 }

@@ -6,8 +6,8 @@ import * as imageminJpegtran from 'imagemin-jpegtran';
 import imageminPngquant from 'imagemin-pngquant';
 import { FileHandlerOptions, GrahpQLUpload, ValidateUploadsResponse, GraphQLStream, UploadValidationOptions, UrlOptions } from './interfaces';
 
-class FileHandler {
-  config: FileHandlerOptions;
+export class FileHandler<ImageThumbnails extends string> {
+  config: FileHandlerOptions<ImageThumbnails>;
 
   client: Minio.Client;
 
@@ -15,7 +15,7 @@ class FileHandler {
    * Initialise with config
    * Creates minio client
    */
-  init(config: FileHandlerOptions) {
+  init(config: FileHandlerOptions<ImageThumbnails>) {
     this.config = config;
     this.client = new Minio.Client(this.config.minioOptions);
   }
@@ -26,7 +26,7 @@ class FileHandler {
    * If the path is private, returns a presigned url
    * @param options - see interface for docs
    */
-  getUrl(options: UrlOptions) {
+  getUrl(options: UrlOptions<ImageThumbnails>) {
     const filePath = options.thumbnail ? this.appendPath(options.path, options.thumbnail) : options.path;
 
     /**
@@ -48,12 +48,10 @@ class FileHandler {
    * @param buffer - the buffer to store
    * @param thumbnails - If true, will loop and process ThumbnailOptions
    */
-  async putImage(path: string, buffer: Buffer, thumbnails = true): Promise<{[NAME: string]: string}> {
+  async putImage(path: string, buffer: Buffer, thumbnails = true): Promise<{[K in ImageThumbnails]: string}> {
     // Store full size image
     await this.client.putObject(this.config.bucketName, path, buffer);
-    const res = {
-      full: path,
-    };
+    const res = { full: path } as unknown;
 
     // Create thumnails
     if (thumbnails) {
@@ -65,7 +63,7 @@ class FileHandler {
       }
     }
 
-    return res;
+    return res as {[K in ImageThumbnails]: string};
   }
 
   /**
@@ -262,5 +260,4 @@ class FileHandler {
 /**
  * Create instance and export
  */
-const instance = new FileHandler();
-export { instance as FileHandler };
+export const FileHandlerInstance = new FileHandler();
