@@ -1,5 +1,5 @@
 import { Application } from 'express';
-import { FileHandler } from '../FileHandler/FileHandler';
+import { FileHandlerInstance } from '../FileHandler/FileHandler';
 
 /**
  * Create express get route for /public/*
@@ -8,7 +8,7 @@ import { FileHandler } from '../FileHandler/FileHandler';
 export default (e: Application) => {
   e.get('/public/*', async (req, res) => {
     try {
-      const stream = await FileHandler.client.getObject(FileHandler.config.bucketName, req.path.substr(1));
+      const stream = await FileHandlerInstance.client.getObject(FileHandlerInstance.config.bucketName, req.path.substr(1));
       return stream.pipe(res);
     } catch {
       return res.status(404);
