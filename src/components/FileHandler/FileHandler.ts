@@ -114,6 +114,30 @@ export class FileHandler<ImageThumbnails extends string> {
   }
 
   /**
+   * Gets object as string
+   * @param path - path of object to retrieve
+   */
+  async readObject(path: string): Promise<string> {
+    const stream = await this.client.getObject(this.config.bucketName, path);
+
+    return new Promise((resolve, reject) => {
+      let data = '';
+
+      stream.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      stream.on('end', () => {
+        resolve(data);
+      });
+
+      stream.on('error', (e) => {
+        reject(e);
+      });
+    });
+  }
+
+  /**
    * Resolves and validates graphql uploads with given validation
    */
   async validateGraphQLUploads(uploads: GrahpQLUpload[], validation: UploadValidationOptions): Promise<ValidateUploadsResponse> {
