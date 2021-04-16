@@ -7,7 +7,7 @@ import * as Jimp from 'jimp';
  * Return null to not process
  */
 export type ThumbnailOptions<ImageThumbnails extends string> = {
-  [K in ImageThumbnails]: (image: Jimp) => Jimp;
+  [K in ImageThumbnails]: (image: Jimp) => Jimp | Promise<Jimp>;
 };
 
 export interface UploadValidationOptions {
