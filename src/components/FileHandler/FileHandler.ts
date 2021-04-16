@@ -90,7 +90,7 @@ export class FileHandler<ImageThumbnails extends string> {
     // Get clone of jimp image
     const image = await (await Jimp.read(buffer)).clone();
     // Process thumbnail with given function and return buffer
-    return this.config.thumbnails[thumbnailName](image).getBufferAsync(image.getMIME());
+    return (await this.config.thumbnails[thumbnailName](image)).getBufferAsync(image.getMIME());
   }
 
   /**
